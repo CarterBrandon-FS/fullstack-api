@@ -2,19 +2,19 @@ const Company = require("../models/Company");
 const Messages = require("../messages/Message");
 
 // GET ALL COMPANIES
-// Supports filtering, select, sort, and pagination via query strings.
-// Examples:
-//   /api/companies?industry=Software
-//   /api/companies?minFounded=2000&maxFounded=2020
-//   /api/companies?select=name,industry
-//   /api/companies?sort=-foundedYear
-//   /api/companies?page=1&limit=5
-
 const getAllCompanies = async (req, res) => {
   try {
-    // ---- 1. FILTERING ----
     const filter = {};
 
+    // Use req.query.search to match BOTH name and industry
+    if (req.query.search) {
+      filter.$or = [
+        { industry: new RegExp(req.query.search, "i") },
+        { name: new RegExp(req.query.search, "i") },
+      ];
+    }
+
+    // Also keep industry filter just in case Postman uses it
     if (req.query.industry) {
       filter.industry = req.query.industry;
     }
@@ -29,7 +29,6 @@ const getAllCompanies = async (req, res) => {
       }
     }
 
-    // ---- 2. SELECT ----
     let selectFields = "-__v";
     if (req.query.select) {
       selectFields = req.query.select
@@ -38,25 +37,20 @@ const getAllCompanies = async (req, res) => {
         .join(" ");
     }
 
-    // ---- 3. SORTING ----
     let sortBy = "";
     if (req.query.sort) {
       sortBy = req.query.sort.split(",").join(" ");
     }
 
-    // ---- 4. PAGINATION ----
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const skip = (page - 1) * limit;
 
-    // ---- Build the query ----
-    // Start with the base query, then conditionally add sort
     let query = Company.find(filter)
       .select(selectFields)
       .skip(skip)
       .limit(limit);
 
-    // Only add sort if there's actually a sort field
     if (sortBy) {
       query = query.sort(sortBy);
     }
@@ -74,8 +68,6 @@ const getAllCompanies = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
-// Get company by id
 
 const getCompanyById = async (req, res) => {
   try {
@@ -95,8 +87,6 @@ const getCompanyById = async (req, res) => {
   }
 };
 
-// create new company
-
 const createCompany = async (req, res) => {
   try {
     const company = await Company.create(req.body);
@@ -109,8 +99,6 @@ const createCompany = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-// Update company
 
 const updateCompany = async (req, res) => {
   try {
@@ -137,8 +125,6 @@ const updateCompany = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
-
-// Delete company by id
 
 const deleteCompany = async (req, res) => {
   try {

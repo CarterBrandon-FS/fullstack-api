@@ -1,16 +1,20 @@
-// Import the worker model and the shared Messages module
 const Worker = require("../models/Worker");
 const Messages = require("../messages/Message");
 
 // GET ALL WORKERS
-// Supports filtering, select, sort, and pagination via query strings.
-// GET ALL WORKERS
-// Supports filtering, select, sort, and pagination via query strings.
 const getAllWorkers = async (req, res) => {
   try {
-    // ---- 1. FILTERING ----
     const filter = {};
 
+    // Use req.query.search to match BOTH name and role
+    if (req.query.search) {
+      filter.$or = [
+        { role: new RegExp(req.query.search, "i") },
+        { name: new RegExp(req.query.search, "i") },
+      ];
+    }
+
+    // Also keep role filter just in case Postman uses it
     if (req.query.role) {
       filter.role = req.query.role;
     }
@@ -29,7 +33,6 @@ const getAllWorkers = async (req, res) => {
       filter.company = req.query.company;
     }
 
-    // ---- 2. SELECT ----
     let selectFields = "-__v";
     if (req.query.select) {
       selectFields = req.query.select
@@ -38,26 +41,21 @@ const getAllWorkers = async (req, res) => {
         .join(" ");
     }
 
-    // ---- 3. SORTING ----
     let sortBy = "";
     if (req.query.sort) {
       sortBy = req.query.sort.split(",").join(" ");
     }
 
-    // ---- 4. PAGINATION ----
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const skip = (page - 1) * limit;
 
-    // ---- Build the query ----
-    // Start with the base query (no sort yet)
     let query = Worker.find(filter)
       .select(selectFields)
       .skip(skip)
       .limit(limit)
       .populate("company");
 
-    // Only add sort if a sort field was provided
     if (sortBy) {
       query = query.sort(sortBy);
     }
@@ -76,7 +74,6 @@ const getAllWorkers = async (req, res) => {
   }
 };
 
-// GET WORKER BY ID
 const getWorkerById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -95,7 +92,6 @@ const getWorkerById = async (req, res) => {
   }
 };
 
-// CREATE WORKER
 const createWorker = async (req, res) => {
   try {
     const worker = await Worker.create(req.body);
@@ -109,7 +105,6 @@ const createWorker = async (req, res) => {
   }
 };
 
-// UPDATE WORKER
 const updateWorker = async (req, res) => {
   try {
     const { id } = req.params;
@@ -138,7 +133,6 @@ const updateWorker = async (req, res) => {
   }
 };
 
-// DELETE WORKER
 const deleteWorker = async (req, res) => {
   try {
     const { id } = req.params;
