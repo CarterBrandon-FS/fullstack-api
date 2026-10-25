@@ -1,0 +1,65 @@
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+header {
+  border-bottom: 2px solid #eee;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.columns {
+  display: flex;
+  gap: 30px;
+  text-align: left;
+}
+
+.column {
+  flex: 1;
+}
+
+.card {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  background-color: #1e1e1e;
+  transition: all 0.3s ease-in-out;
+}
+
+.card h3 {
+  margin-top: 0;
+  color: #fff;
+}
+
+.card p {
+  margin: 6px 0;
+  color: #eee;
+}
+
+.card strong {
+  color: #fff;
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  margin: 0;
+}
+
+header h1 {
+  color: #fff;
+}
+
+header p {
+  color: #cacaca;
+}
+h2 {
+  color: #fff;
+  margin-bottom: 20px;
+}
